@@ -1,26 +1,202 @@
 @import "tailwindcss";
 
+/* Paper, ink and muted flip with the theme. Night, sand, amber and laterite are fixed brand colours, the same in both themes. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+  --paper: #fffdf9;
+  --surface: #f3eee5;
+  --band: #e2cbad;
+  --ink: #1b1916;
+  --muted: #5c554c;
+  --line: #ded6ca;
+  --accent: #88381e;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #171513;
+  --surface: #23201c;
+  --band: #35291d;
+  --ink: #f5f0e8;
+  --muted: #b5aca0;
+  --line: #3a352f;
+  --accent: #f0b45a;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-band: var(--band);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+
+  --color-night: #181613;
+  --color-sand: #e5dac9;
+  --color-amber: #efb04c;
+  --color-laterite: #9a4325;
+  --color-blueprint: #06203f;
+
+  --font-sans: var(--font-body), "Nirmala UI", "Noto Sans Tamil", sans-serif;
+  --font-display: var(--font-heading), sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@utility shell {
+  width: 100%;
+  max-width: 100rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+
+  @media (width >= 48rem) {
+    padding-inline: 2rem;
+  }
+
+  @media (width >= 80rem) {
+    padding-inline: 3.125rem;
   }
 }
 
+@utility title {
+  font-family: var(--font-display);
+  font-size: clamp(2.125rem, 4.4vw, 3.75rem);
+  font-weight: 750;
+  line-height: 1.06;
+  letter-spacing: -0.015em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+/* The faint vertical rules that run behind light sections. */
+@utility grid-lines {
+  background-image: linear-gradient(to right, color-mix(in srgb, var(--line) 45%, transparent) 1px, transparent 1px);
+  background-size: 20% 100%;
+}
+
+html {
+  scroll-padding-top: 6rem;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-amber);
+  outline-offset: 3px;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    translate: 0 1.5rem;
+  }
+}
+
+/* The hero only moves. Fading it would hide the main message whenever animation frames are delayed. */
+@keyframes settle {
+  from {
+    translate: 0 1.5rem;
+  }
+}
+
+/* A slow push-in on hero photos: scale only, so the picture is always visible. */
+@keyframes drift {
+  from {
+    scale: 1.16;
+  }
+}
+
+/* The header bar arrives once, when the site first loads. */
+@keyframes drop {
+  from {
+    opacity: 0;
+    translate: 0 -0.75rem;
+  }
+}
+
+/* Menus and dropdown panels open with a short fade. */
+@keyframes pop {
+  from {
+    opacity: 0;
+    translate: 0 -0.375rem;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Hero content: each part rises a moment after the one before it. */
+  .rise > * {
+    animation: settle 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  .rise > :nth-child(2) {
+    animation-delay: 90ms;
+  }
+
+  .rise > :nth-child(3) {
+    animation-delay: 180ms;
+  }
+
+  .rise > :nth-child(n + 4) {
+    animation-delay: 270ms;
+  }
+
+  /* Stays 10% larger after settling, so the scroll parallax never shows an edge. */
+  /* Hero photos move a little slower than the page. Drawn 10% larger, so 4% of travel never shows an edge. */
+  [data-motion] [data-parallax] {
+    translate: 0 min(calc(var(--scroll-y, 0) * 0.2px), 4%);
+  }
+
+  .drift {
+    scale: 1.1;
+    animation: drift 2.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  .drop {
+    animation: drop 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  .pop {
+    animation: pop 0.2s ease-out both;
+  }
+
+  /* Buttons lift slightly under the pointer. */
+  .lift {
+    transition:
+      translate 0.2s ease-out,
+      box-shadow 0.2s ease-out;
+  }
+
+  .lift:hover {
+    translate: 0 -2px;
+    box-shadow: 0 6px 16px -8px rgb(24 22 19 / 0.45);
+  }
+
+  /* Photos inside a .group zoom gently under the pointer. */
+  .group .zoom {
+    transition: scale 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .group:hover .zoom {
+    scale: 1.04;
+  }
+
+  /* Scroll reveal. ScrollMotion sets data-motion once it runs, so without JavaScript everything simply shows. */
+  [data-motion] :is(.reveal, .reveal-each > *) {
+    transition:
+      opacity 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) var(--reveal-delay, 0ms),
+      translate 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) var(--reveal-delay, 0ms);
+  }
+
+  [data-motion] :is(.reveal, .reveal-each > *):not(.is-visible) {
+    opacity: 0;
+    translate: 0 2rem;
+  }
 }

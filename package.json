@@ -6,7 +6,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "node --test scripts/agent-setup.test.mjs",
+    "check": "node scripts/check.mjs",
+    "verify": "node scripts/verify.mjs",
+    "rules:sync": "node scripts/sync-rules.mjs",
+    "rules:check": "node scripts/sync-rules.mjs --check",
+    "pr:check": "node scripts/check-pr-body.mjs",
+    "hooks:install": "git config core.hooksPath .githooks"
   },
   "dependencies": {
     "next": "16.4.6",
